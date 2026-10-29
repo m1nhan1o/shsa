@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>급식 알리미</title>
+</head>
+<body>
+  <h1>오늘의 급식</h1>
+  <div id="result">불러오는 중...</div>
+
+  <script>
+    async function loadMeal() {
+      const res = await fetch('/api/meal');
+      const data = await res.json();
+      const box = document.getElementById('result');
+
+      if (!data.meals || data.meals.length === 0) {
+        box.textContent = '오늘은 급식이 없어요';
+        return;
+      }
+
+      box.innerHTML = '';
+      data.meals.forEach(m => {
+        const h = document.createElement('h2');
+        h.textContent = m.type;
+        const ul = document.createElement('ul');
+        m.menu.forEach(item => {
+          const li = document.createElement('li');
+          li.textContent = item;
+          ul.appendChild(li);
+        });
+        box.append(h, ul);
+      });
+    }
+    loadMeal();
+  </script>
+</body>
+</html>
