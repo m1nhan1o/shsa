@@ -4,10 +4,75 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>급식 알리미</title>
+<style>
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    padding: 16px;
+    font-family: -apple-system, 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+    background: #f4f6fa;
+    color: #222;
+  }
+
+  .container {
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  h1 {
+    font-size: 24px;
+    margin: 8px 0 20px;
+  }
+
+  .card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 16px 20px;
+    margin-bottom: 14px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  }
+
+  .card h2 {
+    font-size: 18px;
+    margin: 0 0 10px;
+    color: #3b6cf6;
+  }
+
+  .card ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .card li {
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+
+  .card li:last-child { border-bottom: none; }
+
+  .empty {
+    text-align: center;
+    color: #888;
+    padding: 40px 0;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    body { background: #14161a; color: #eee; }
+    .card { background: #1f2229; box-shadow: none; }
+    .card li { border-bottom-color: #333; }
+    .card h2 { color: #7da2ff; }
+  }
+</style>
 </head>
 <body>
-  <h1>오늘의 급식</h1>
-  <div id="result">불러오는 중...</div>
+  <div class="container">
+    <h1>오늘의 급식</h1>
+    <div id="result">불러오는 중...</div>
+  </div>
 
   <script>
     async function loadMeal() {
@@ -16,21 +81,27 @@
       const box = document.getElementById('result');
 
       if (!data.meals || data.meals.length === 0) {
-        box.textContent = '오늘은 급식이 없어요';
+        box.innerHTML = '<div class="empty">오늘은 급식이 없어요</div>';
         return;
       }
 
       box.innerHTML = '';
       data.meals.forEach(m => {
+        const card = document.createElement('div');
+        card.className = 'card';
+
         const h = document.createElement('h2');
         h.textContent = m.type;
+
         const ul = document.createElement('ul');
         m.menu.forEach(item => {
           const li = document.createElement('li');
           li.textContent = item;
           ul.appendChild(li);
         });
-        box.append(h, ul);
+
+        card.append(h, ul);
+        box.appendChild(card);
       });
     }
     loadMeal();
