@@ -26,7 +26,9 @@ app.get('/api/meal', async (req, res) => {
     const rows = data.mealServiceDietInfo[1].row;
     const meals = rows.map(r => ({
       type: r.MMEAL_SC_NM,
-      menu: r.DDISH_NM.split('<br/>'),
+      menu: r.DDISH_NM.split('<br/>').map(s => s.replace(/`/g, '').trim()),
+      calories: r.CAL_INFO,
+      nutrients: r.NTR_INFO ? r.NTR_INFO.split('<br/>') : [],
     }));
     res.json({ meals });
   } catch (err) {

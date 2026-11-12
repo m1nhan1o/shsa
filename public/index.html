@@ -5,106 +5,126 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>급식 알리미</title>
   <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#3b6cf6">
-<link rel="apple-touch-icon" href="/icons/icon-192.png">
-<style>
-  * { box-sizing: border-box; }
+  <meta name="theme-color" content="#3b6cf6">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; padding: 16px;
+      font-family: -apple-system, 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+      background: #f4f6fa; color: #222;
+    }
+    .container { max-width: 480px; margin: 0 auto; }
+    h1 { font-size: 24px; margin: 8px 0 14px; }
 
-  body {
-    margin: 0;
-    padding: 16px;
-    font-family: -apple-system, 'Noto Sans KR', 'Malgun Gothic', sans-serif;
-    background: #f4f6fa;
-    color: #222;
-  }
+    .datebar {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 8px; margin-bottom: 16px;
+    }
+    .datebar button {
+      padding: 10px 14px; font-size: 16px; border: none;
+      border-radius: 10px; background: #3b6cf6; color: #fff;
+    }
+    .datebar .today { background: #e3e8f5; color: #3b6cf6; }
+    #dateLabel { font-size: 18px; font-weight: bold; text-align: center; flex: 1; }
 
-  .container {
-    max-width: 480px;
-    margin: 0 auto;
-  }
+    .card {
+      background: #fff; border-radius: 16px; padding: 16px 20px;
+      margin-bottom: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .card h2 { font-size: 18px; margin: 0 0 10px; color: #3b6cf6; }
+    .card ul { list-style: none; margin: 0; padding: 0; }
+    .card li { padding: 8px 0; border-bottom: 1px solid #eee; font-size: 16px; line-height: 1.4; }
+    .card li:last-child { border-bottom: none; }
+    .empty { text-align: center; color: #888; padding: 40px 0; }
 
-  h1 {
-    font-size: 24px;
-    margin: 8px 0 20px;
-  }
+    .kcal { font-size: 14px; color: #888; margin-left: 6px; font-weight: normal; }
+    details { margin-top: 10px; }
+    summary { cursor: pointer; color: #3b6cf6; font-size: 15px; padding: 6px 0; }
+    .nutri li { font-size: 14px; padding: 4px 0; border-bottom: none; color: #555; }
 
-  .card {
-    background: #fff;
-    border-radius: 16px;
-    padding: 16px 20px;
-    margin-bottom: 14px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  }
+    .tt-form { display: flex; gap: 8px; margin-bottom: 14px; }
+    .tt-form input {
+      flex: 1; min-width: 0; padding: 10px; font-size: 16px;
+      border: 1px solid #ccd; border-radius: 10px;
+    }
+    .tt-form button {
+      padding: 10px 18px; font-size: 16px; border: none;
+      border-radius: 10px; background: #3b6cf6; color: #fff;
+    }
+    .period { display: flex; gap: 12px; padding: 8px 0; border-bottom: 1px solid #eee; }
+    .period:last-child { border-bottom: none; }
+    .period .no { width: 40px; color: #3b6cf6; font-weight: bold; }
 
-  .card h2 {
-    font-size: 18px;
-    margin: 0 0 10px;
-    color: #3b6cf6;
-  }
-
-  .card ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-
-  .card li {
-    padding: 8px 0;
-    border-bottom: 1px solid #eee;
-    font-size: 16px;
-    line-height: 1.4;
-  }
-
-  .card li:last-child { border-bottom: none; }
-
-  .empty {
-    text-align: center;
-    color: #888;
-    padding: 40px 0;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    body { background: #14161a; color: #eee; }
-    .card { background: #1f2229; box-shadow: none; }
-    .card li { border-bottom-color: #333; }
-    .card h2 { color: #7da2ff; }
-  }
-
-  .tt-form { display: flex; gap: 8px; margin-bottom: 14px; }
-.tt-form input {
-  flex: 1; min-width: 0; padding: 10px; font-size: 16px;
-  border: 1px solid #ccd; border-radius: 10px;
-}
-.tt-form button {
-  padding: 10px 18px; font-size: 16px; border: none;
-  border-radius: 10px; background: #3b6cf6; color: #fff;
-}
-.period { display: flex; gap: 12px; padding: 8px 0; border-bottom: 1px solid #eee; }
-.period:last-child { border-bottom: none; }
-.period .no { width: 40px; color: #3b6cf6; font-weight: bold; }
-</style>
+    @media (prefers-color-scheme: dark) {
+      body { background: #14161a; color: #eee; }
+      .card { background: #1f2229; box-shadow: none; }
+      .card li, .period { border-bottom-color: #333; }
+      .card h2, .period .no, summary { color: #7da2ff; }
+      .nutri li { color: #aaa; }
+      .datebar .today { background: #2a2f3a; color: #7da2ff; }
+      .tt-form input { background: #1f2229; color: #eee; border-color: #444; }
+    }
+  </style>
 </head>
 <body>
   <div class="container">
-    <h1>오늘의 급식</h1>
+    <div class="datebar">
+      <button id="prevBtn">◀</button>
+      <div id="dateLabel"></div>
+      <button id="nextBtn">▶</button>
+    </div>
+    <div style="text-align:center; margin-bottom:16px;">
+      <button id="todayBtn" class="today" style="padding:8px 16px; font-size:15px; border:none; border-radius:10px;">오늘로</button>
+    </div>
+
+    <h1>급식</h1>
     <div id="result">불러오는 중...</div>
 
     <h1>시간표</h1>
-  <div class="tt-form">
-    <input id="grade" type="number" min="1" max="3" placeholder="학년">
-   <input id="classNm" type="number" min="1" placeholder="반">
-   <button id="ttBtn">조회</button>
+    <div class="tt-form">
+      <input id="grade" type="number" min="1" max="3" placeholder="학년">
+      <input id="classNm" type="number" min="1" placeholder="반">
+      <button id="ttBtn">조회</button>
+    </div>
+    <div id="timetable"></div>
   </div>
-  <div id="timetable"></div>
-</div>
+
   <script>
+    // ----- 날짜 처리 (한국 시간 기준) -----
+    function kstNow() { return new Date(Date.now() + 9 * 60 * 60 * 1000); }
+    let current = kstNow();
+
+    function fmt(d) { return d.toISOString().slice(0, 10).replace(/-/g, ''); }
+    function label(d) {
+      const days = ['일', '월', '화', '수', '목', '금', '토'];
+      return `${d.getUTCMonth() + 1}월 ${d.getUTCDate()}일 (${days[d.getUTCDay()]})`;
+    }
+    function move(n) {
+      current = new Date(current.getTime() + n * 24 * 60 * 60 * 1000);
+      loadAll();
+    }
+
+    // ----- 급식 -----
+    let mealReq = 0;
     async function loadMeal() {
-      const res = await fetch('/api/meal');
-      const data = await res.json();
+      const myId = ++mealReq;
       const box = document.getElementById('result');
+      box.textContent = '불러오는 중...';
+
+      let data;
+      try {
+        const res = await fetch(`/api/meal?date=${fmt(current)}`);
+        data = await res.json();
+      } catch (e) {
+        if (myId !== mealReq) return;
+        box.innerHTML = '<div class="empty">급식을 불러오지 못했어요</div>';
+        return;
+      }
+      if (myId !== mealReq) return; // 그 사이 다른 날짜를 눌렀으면 무시
 
       if (!data.meals || data.meals.length === 0) {
-        box.innerHTML = '<div class="empty">오늘은 급식이 없어요</div>';
+        box.innerHTML = '<div class="empty">이 날은 급식이 없어요</div>';
         return;
       }
 
@@ -115,6 +135,12 @@
 
         const h = document.createElement('h2');
         h.textContent = m.type;
+        if (m.calories) {
+          const k = document.createElement('span');
+          k.className = 'kcal';
+          k.textContent = m.calories;
+          h.appendChild(k);
+        }
 
         const ul = document.createElement('ul');
         m.menu.forEach(item => {
@@ -122,71 +148,105 @@
           li.textContent = item;
           ul.appendChild(li);
         });
-
         card.append(h, ul);
+
+        if (m.nutrients && m.nutrients.length > 0) {
+          const det = document.createElement('details');
+          const sum = document.createElement('summary');
+          sum.textContent = '영양정보 보기';
+          const nul = document.createElement('ul');
+          nul.className = 'nutri';
+          m.nutrients.forEach(n => {
+            const li = document.createElement('li');
+            li.textContent = n;
+            nul.appendChild(li);
+          });
+          det.append(sum, nul);
+          card.appendChild(det);
+        }
         box.appendChild(card);
       });
     }
-    loadMeal();
+
+    // ----- 시간표 -----
+    let ttReq = 0;
     async function loadTimetable() {
-  const grade = document.getElementById('grade').value;
-  const classNm = document.getElementById('classNm').value;
-  const box = document.getElementById('timetable');
+      const grade = document.getElementById('grade').value;
+      const classNm = document.getElementById('classNm').value;
+      const box = document.getElementById('timetable');
 
-  if (!grade || !classNm) {
-    box.innerHTML = '<div class="empty">학년과 반을 입력해줘</div>';
-    return;
-  }
+      if (!grade || !classNm) {
+        box.innerHTML = '<div class="empty">학년과 반을 입력해줘</div>';
+        return;
+      }
+      try {
+        localStorage.setItem('myClass', JSON.stringify({ grade, classNm }));
+      } catch (e) {}
 
-  // 다음에 열 때 안 눌러도 되게 저장
-  try {
-    localStorage.setItem('myClass', JSON.stringify({ grade, classNm }));
-  } catch (e) {}
+      const myId = ++ttReq;
+      box.textContent = '불러오는 중...';
+      let data;
+      try {
+        const res = await fetch(`/api/timetable?grade=${grade}&classNm=${classNm}&date=${fmt(current)}`);
+        data = await res.json();
+      } catch (e) {
+        if (myId !== ttReq) return;
+        box.innerHTML = '<div class="empty">시간표를 불러오지 못했어요</div>';
+        return;
+      }
+      if (myId !== ttReq) return;
 
-  box.textContent = '불러오는 중...';
-  let data;
-  try {
-    const res = await fetch(`/api/timetable?grade=${grade}&classNm=${classNm}`);
-    data = await res.json();
-  } catch (e) {
-    console.error(e);
-    box.innerHTML = '<div class="empty">시간표를 불러오지 못했어요</div>';
-    return;
-  }
+      if (!data.periods || data.periods.length === 0) {
+        box.innerHTML = '<div class="empty">이 날은 시간표가 없어요</div>';
+        return;
+      }
 
-  if (!data.periods || data.periods.length === 0) {
-    box.innerHTML = '<div class="empty">오늘은 시간표가 없어요</div>';
-    return;
-  }
+      box.innerHTML = '';
+      const card = document.createElement('div');
+      card.className = 'card';
+      data.periods.forEach(p => {
+        const row = document.createElement('div');
+        row.className = 'period';
+        const no = document.createElement('span');
+        no.className = 'no';
+        no.textContent = p.period + '교시';
+        const sub = document.createElement('span');
+        sub.textContent = p.subject;
+        row.append(no, sub);
+        card.appendChild(row);
+      });
+      box.appendChild(card);
+    }
 
-  box.innerHTML = '';
-  const card = document.createElement('div');
-  card.className = 'card';
-  data.periods.forEach(p => {
-    const row = document.createElement('div');
-    row.className = 'period';
-    const no = document.createElement('span');
-    no.className = 'no';
-    no.textContent = p.period + '교시';
-    const sub = document.createElement('span');
-    sub.textContent = p.subject;
-    row.append(no, sub);
-    card.appendChild(row);
-  });
-  box.appendChild(card);
-}
+    // ----- 전체 갱신 -----
+    function loadAll() {
+      document.getElementById('dateLabel').textContent = label(current);
+      loadMeal();
+      loadTimetable();
+    }
 
-document.getElementById('ttBtn').addEventListener('click', loadTimetable);
+    document.getElementById('prevBtn').addEventListener('click', () => move(-1));
+    document.getElementById('nextBtn').addEventListener('click', () => move(1));
+    document.getElementById('todayBtn').addEventListener('click', () => {
+      current = kstNow();
+      loadAll();
+    });
+    document.getElementById('ttBtn').addEventListener('click', loadTimetable);
 
-// 저장된 학년/반이 있으면 자동으로 불러오기
-try {
-  const saved = JSON.parse(localStorage.getItem('myClass'));
-  if (saved) {
-    document.getElementById('grade').value = saved.grade;
-    document.getElementById('classNm').value = saved.classNm;
-    loadTimetable();
-  }
-} catch (e) {}
+    // 저장된 학년/반 불러오기
+    try {
+      const saved = JSON.parse(localStorage.getItem('myClass'));
+      if (saved) {
+        document.getElementById('grade').value = saved.grade;
+        document.getElementById('classNm').value = saved.classNm;
+      }
+    } catch (e) {}
+
+    loadAll();
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js');
+    }
   </script>
 </body>
 </html>
