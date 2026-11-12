@@ -5,8 +5,8 @@ const app = express();
 app.use(express.static('public'));
 
 app.get('/api/meal', async (req, res) => {
-  const date = req.query.date || new Date().toISOString().slice(0, 10).replace(/-/g, '');
-
+  const kst = new Date(Date.now() + 9 * 60 * 60 * 1000);
+  const date = req.query.date || kst.toISOString().slice(0, 10).replace(/-/g, '');
   const url = 'https://open.neis.go.kr/hub/mealServiceDietInfo'
     + `?KEY=${process.env.NEIS_KEY}`
     + '&Type=json'
@@ -17,6 +17,7 @@ app.get('/api/meal', async (req, res) => {
   try {
     const response = await fetch(url);
     const data = await response.json();
+    console.log(JSON.stringify(data, null, 2));
 
     if (!data.mealServiceDietInfo) {
       return res.json({ meals: [] });
@@ -31,6 +32,44 @@ app.get('/api/meal', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: '급식 정보를 가져오지 못했어요' });
+  }
+});
+app.get('/api/timetable', async (req, res) => {
+  const { grade, classNm } = req.query;
+  if (!grade || !classNm) {
+    return res.status(400).json({ error: '학년과 반을 입력해줘' });
+  }
+
+  const kst = new Date(Date.now() + 9 * 60 * 60 * 1000);
+  const date = req.query.date || kst.toISOString().slice(0, 10).replace(/-/g, '');
+
+  const url = 'https://open.neis.go.kr/hub/hisTimetable'
+    + `?KEY=${process.env.NEIS_KEY}`
+    + '&Type=json'
+    + `&ATPT_OFCDC_SC_CODE=${process.env.OFFICE_CODE}`
+    + `&SD_SCHUL_CODE=${process.env.SCHOOL_CODE}`
+    + `&ALL_TI_YMD=${date}`
+    + `&GRADE=${grade}`
+    + `&CLASS_NM=${classNm}`;
+
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+    //console.log('시간표 응답:', JSON.stringify(data, null, 2));
+
+    if (!data.hisTimetable) {
+      return res.json({ periods: [] });
+    }
+
+    const rows = data.hisTimetable[1].row;
+    const periods = rows
+      .map(r => ({ period: Number(r.PERIO), subject: r.ITRT_CNTNT }))
+      .sort((a, b) => a.period - b.period);
+
+    res.json({ periods });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: '시간표를 가져오지 못했어요' });
   }
 });
 

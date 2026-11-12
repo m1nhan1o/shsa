@@ -69,14 +69,34 @@
     .card li { border-bottom-color: #333; }
     .card h2 { color: #7da2ff; }
   }
+
+  .tt-form { display: flex; gap: 8px; margin-bottom: 14px; }
+.tt-form input {
+  flex: 1; min-width: 0; padding: 10px; font-size: 16px;
+  border: 1px solid #ccd; border-radius: 10px;
+}
+.tt-form button {
+  padding: 10px 18px; font-size: 16px; border: none;
+  border-radius: 10px; background: #3b6cf6; color: #fff;
+}
+.period { display: flex; gap: 12px; padding: 8px 0; border-bottom: 1px solid #eee; }
+.period:last-child { border-bottom: none; }
+.period .no { width: 40px; color: #3b6cf6; font-weight: bold; }
 </style>
 </head>
 <body>
   <div class="container">
     <h1>오늘의 급식</h1>
     <div id="result">불러오는 중...</div>
-  </div>
 
+    <h1>시간표</h1>
+  <div class="tt-form">
+    <input id="grade" type="number" min="1" max="3" placeholder="학년">
+   <input id="classNm" type="number" min="1" placeholder="반">
+   <button id="ttBtn">조회</button>
+  </div>
+  <div id="timetable"></div>
+</div>
   <script>
     async function loadMeal() {
       const res = await fetch('/api/meal');
@@ -108,6 +128,65 @@
       });
     }
     loadMeal();
+    async function loadTimetable() {
+  const grade = document.getElementById('grade').value;
+  const classNm = document.getElementById('classNm').value;
+  const box = document.getElementById('timetable');
+
+  if (!grade || !classNm) {
+    box.innerHTML = '<div class="empty">학년과 반을 입력해줘</div>';
+    return;
+  }
+
+  // 다음에 열 때 안 눌러도 되게 저장
+  try {
+    localStorage.setItem('myClass', JSON.stringify({ grade, classNm }));
+  } catch (e) {}
+
+  box.textContent = '불러오는 중...';
+  let data;
+  try {
+    const res = await fetch(`/api/timetable?grade=${grade}&classNm=${classNm}`);
+    data = await res.json();
+  } catch (e) {
+    console.error(e);
+    box.innerHTML = '<div class="empty">시간표를 불러오지 못했어요</div>';
+    return;
+  }
+
+  if (!data.periods || data.periods.length === 0) {
+    box.innerHTML = '<div class="empty">오늘은 시간표가 없어요</div>';
+    return;
+  }
+
+  box.innerHTML = '';
+  const card = document.createElement('div');
+  card.className = 'card';
+  data.periods.forEach(p => {
+    const row = document.createElement('div');
+    row.className = 'period';
+    const no = document.createElement('span');
+    no.className = 'no';
+    no.textContent = p.period + '교시';
+    const sub = document.createElement('span');
+    sub.textContent = p.subject;
+    row.append(no, sub);
+    card.appendChild(row);
+  });
+  box.appendChild(card);
+}
+
+document.getElementById('ttBtn').addEventListener('click', loadTimetable);
+
+// 저장된 학년/반이 있으면 자동으로 불러오기
+try {
+  const saved = JSON.parse(localStorage.getItem('myClass'));
+  if (saved) {
+    document.getElementById('grade').value = saved.grade;
+    document.getElementById('classNm').value = saved.classNm;
+    loadTimetable();
+  }
+} catch (e) {}
   </script>
 </body>
 </html>
