@@ -65,6 +65,7 @@
       .datebar .today { background: #2a2f3a; color: #7da2ff; }
       .tt-form input { background: #1f2229; color: #eee; border-color: #444; }
     }
+    .allergy { font-size: 12px; color: #e0662f; margin-top: 2px; }
   </style>
 </head>
 <body>
@@ -81,6 +82,8 @@
     <h1>급식</h1>
     <div id="result">불러오는 중...</div>
 
+    <div class="empty" style="padding:0 0 16px; font-size:13px;">알레르기 정보는 참고용임 정확한 내용은 학교 공지를 확인하세요</div>
+   
     <h1>시간표</h1>
     <div class="tt-form">
       <input id="grade" type="number" min="1" max="3" placeholder="학년">
@@ -143,9 +146,15 @@
         }
 
         const ul = document.createElement('ul');
-        m.menu.forEach(item => {
+        (m.items || []).forEach(item => {
           const li = document.createElement('li');
-          li.textContent = item;
+          li.textContent = item.name;
+          if (item.allergens.length > 0) {
+            const a = document.createElement('div');
+            a.className = 'allergy';
+            a.textContent = '알레르기: ' + item.allergens.join(', ');
+            li.appendChild(a);
+          }
           ul.appendChild(li);
         });
         card.append(h, ul);
